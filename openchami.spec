@@ -30,16 +30,16 @@ The quadlets, systemd units, and config files for the Open Composable, Heterogen
 # 1) Install config, unit, and script files
 mkdir -p %{buildroot}/etc/openchami/configs \
          %{buildroot}/etc/openchami/pg-init \
-         %{buildroot}/etc/containers/systemd \
+         %{buildroot}/usr/share/containers/systemd \
          %{buildroot}/etc/systemd/system \
          %{buildroot}/usr/bin \
          %{buildroot}/etc/profile.d \
          %{buildroot}/usr/libexec/openchami
 
 cp -r systemd/configs/*                 %{buildroot}/etc/openchami/configs/
-cp -r systemd/containers/*              %{buildroot}/etc/containers/systemd/
-cp -r systemd/volumes/*                 %{buildroot}/etc/containers/systemd/
-cp -r systemd/networks/*                %{buildroot}/etc/containers/systemd/
+cp -r systemd/containers/*              %{buildroot}/usr/share/containers/systemd/
+cp -r systemd/volumes/*                 %{buildroot}/usr/share/containers/systemd/
+cp -r systemd/networks/*                %{buildroot}/usr/share/containers/systemd/
 cp -r systemd/targets/*                 %{buildroot}/etc/systemd/system/
 cp -r systemd/system/*                  %{buildroot}/etc/systemd/system/
 cp scripts/bootstrap_openchami.sh       %{buildroot}/usr/libexec/openchami/
@@ -60,7 +60,7 @@ chmod 644 %{buildroot}/etc/openchami/configs/*
 %files
 %license LICENSE
 %config(noreplace) /etc/openchami/configs/*
-/etc/containers/systemd/*
+/usr/share/containers/systemd/*
 /etc/systemd/system/openchami.target
 /etc/systemd/system/openchami-cert-renewal.service
 /etc/systemd/system/openchami-cert-renewal.timer
@@ -72,8 +72,8 @@ chmod 644 %{buildroot}/etc/openchami/configs/*
 /usr/bin/openchami-certificate-update
 
 %pre
-if [ -f /etc/containers/systemd/coresmd.container ]; then
-	echo 'WARNING: /etc/containers/systemd/coresmd.container as been replaced by /etc/containers/systemd/coresmd-coredhcp.container.'
+if [ -f /usr/share/containers/systemd/coresmd.container ]; then
+	echo 'WARNING: /usr/share/containers/systemd/coresmd.container as been replaced by /usr/share/containers/systemd/coresmd-coredhcp.container.'
 	echo '         Migrate to coresmd-coredhcp to avoid any issues.'
 fi
 
