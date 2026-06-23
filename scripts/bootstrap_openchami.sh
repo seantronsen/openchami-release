@@ -42,11 +42,11 @@ generate_environment_file() {
 acme_correction() {
   local system_fqdn=$(hostname)
   primary_ip=$(hostname -I | awk '{print $1}')
-  sed -i "s|-d .* \\\\|-d ${system_fqdn} \\\\|" /etc/containers/systemd/acme-deploy.container
-  sed -i "s/^ContainerName=.*/ContainerName=${system_fqdn}/" /etc/containers/systemd/acme-register.container
-  sed -i "s/^HostName=.*/HostName=${system_fqdn}/" /etc/containers/systemd/acme-register.container
-  sed -i "s|-d .* \\\\|-d ${system_fqdn} \\\\|" /etc/containers/systemd/acme-register.container
-  sed -i "s|--add-host='demo\.openchami\.cluster:[0-9\.]*'|--add-host='${system_fqdn}:${primary_ip}'|" /etc/containers/systemd/opaal.container
+  sed -i "s|-d .* \\\\|-d ${system_fqdn} \\\\|" /usr/share/containers/systemd/acme-deploy.container
+  sed -i "s/^ContainerName=.*/ContainerName=${system_fqdn}/" /usr/share/containers/systemd/acme-register.container
+  sed -i "s/^HostName=.*/HostName=${system_fqdn}/" /usr/share/containers/systemd/acme-register.container
+  sed -i "s|-d .* \\\\|-d ${system_fqdn} \\\\|" /usr/share/containers/systemd/acme-register.container
+  sed -i "s|--add-host='demo\.openchami\.cluster:[0-9\.]*'|--add-host='${system_fqdn}:${primary_ip}'|" /usr/share/containers/systemd/opaal.container
 }
 
 # Check and create secrets with random passwords if needed
