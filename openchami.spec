@@ -31,7 +31,7 @@ The quadlets, systemd units, and config files for the Open Composable, Heterogen
 mkdir -p %{buildroot}/etc/openchami/configs \
          %{buildroot}/etc/openchami/pg-init \
          %{buildroot}/usr/share/containers/systemd \
-         %{buildroot}/etc/systemd/system \
+         %{buildroot}/usr/lib/systemd/system \
          %{buildroot}/usr/bin \
          %{buildroot}/etc/profile.d \
          %{buildroot}/usr/libexec/openchami
@@ -40,8 +40,8 @@ cp -r systemd/configs/*                 %{buildroot}/etc/openchami/configs/
 cp -r systemd/containers/*              %{buildroot}/usr/share/containers/systemd/
 cp -r systemd/volumes/*                 %{buildroot}/usr/share/containers/systemd/
 cp -r systemd/networks/*                %{buildroot}/usr/share/containers/systemd/
-cp -r systemd/targets/*                 %{buildroot}/etc/systemd/system/
-cp -r systemd/system/*                  %{buildroot}/etc/systemd/system/
+cp -r systemd/targets/*                 %{buildroot}/usr/lib/systemd/system/
+cp -r systemd/system/*                  %{buildroot}/usr/lib/systemd/system/
 cp scripts/bootstrap_openchami.sh       %{buildroot}/usr/libexec/openchami/
 cp scripts/openchami-certificate-update %{buildroot}/usr/bin/
 cp scripts/openchami_profile.sh         %{buildroot}/etc/profile.d/openchami.sh
@@ -61,10 +61,10 @@ chmod 644 %{buildroot}/etc/openchami/configs/*
 %license LICENSE
 %config(noreplace) /etc/openchami/configs/*
 /usr/share/containers/systemd/*
-/etc/systemd/system/openchami.target
-/etc/systemd/system/openchami-cert-renewal.service
-/etc/systemd/system/openchami-cert-renewal.timer
-/etc/systemd/system/openchami-cert-trust.service
+/usr/lib/systemd/system/openchami.target
+/usr/lib/systemd/system/openchami-cert-renewal.service
+/usr/lib/systemd/system/openchami-cert-renewal.timer
+/usr/lib/systemd/system/openchami-cert-trust.service
 /usr/libexec/openchami/bootstrap_openchami.sh
 /usr/libexec/openchami/ohpc-nodes.sh
 /etc/profile.d/openchami.sh
