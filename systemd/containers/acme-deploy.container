@@ -23,11 +23,15 @@ Environment=DEPLOY_HAPROXY_PEM_PATH=/etc/haproxy/certs
 # Environment Variables
 EnvironmentFile=/etc/openchami/configs/openchami.env
 
+# **optional:** OpenCHAMI site-specific overrides are managed in
+# /etc/containers/systemd/acme-register.service.d/99-site-override.conf
+Environment=SYSTEM_FQDN=%H
+
 # Command
 Exec=--deploy \
   --ca-bundle /root_ca/root_ca.crt \
   --server https://step-ca:9000/acme/acme/directory \
-  -d ${SYSTEM_URL} \
+  -d ${SYSTEM_FQDN} \
   --home /acme.sh \
   --standalone \
   --deploy-hook haproxy \

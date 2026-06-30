@@ -5,8 +5,8 @@ After=acme-certs-volume.service openchami-cert-trust.service acme-certs-volume.s
 PartOf=openchami.target
 
 [Container]
-ContainerName=demo.openchami.cluster
-HostName=demo.openchami.cluster
+ContainerName=%H
+HostName=%H
 Image=docker.io/neilpang/acme.sh:3.1.1
 
 # Volumes
@@ -19,11 +19,15 @@ Network=openchami-cert-internal.network
 # Environment Variables
 EnvironmentFile=/etc/openchami/configs/openchami.env
 
+# **optional:** OpenCHAMI site-specific overrides are managed in
+# /etc/containers/systemd/acme-register.service.d/99-site-override.conf
+Environment=SYSTEM_FQDN=%H
+
 Exec=--issue \
   --ca-bundle /root_ca/root_ca.crt \
   --server https://step-ca:9000/acme/acme/directory \
   --home /acme.sh \
-  -d ${SYSTEM_URL} \
+  -d ${SYSTEM_FQDN} \
   --standalone \
   --force
 
