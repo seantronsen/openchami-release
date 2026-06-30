@@ -22,8 +22,6 @@ Exec=/opaal/opaal login --config /opaal/config/opaal.yaml
 Network=openchami-internal.network
 Network=openchami-jwt-internal.network
 
-# Extra hosts
-PodmanArgs=--add-host='demo.openchami.cluster:172.16.0.254'
 # Proxy settings
 PodmanArgs=--http-proxy=false
 
