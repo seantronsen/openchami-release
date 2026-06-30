@@ -6,31 +6,32 @@ update_dns() {
 
     echo "Updating local site-specific OpenCHAMI URL overrides..."
     cat <<EOF | tee /etc/containers/systemd/containers.d/99-openchami-site-override.conf
-    # MANAGED BY '${0}'
-    [Container]
-    Environment=URLS_SELF_ISSUER=https://${system_fqdn}
-    Environment=URLS_SELF_PUBLIC=https://${system_fqdn}
-    Environment=URLS_LOGIN=https://${system_fqdn}/login
-    Environment=URLS_CONSENT=https://${system_fqdn}/consent
-    Environment=URLS_LOGOUT=https://${system_fqdn}/logout
+# MANAGED BY '${0}'
+[Container]
+Environment=URLS_SELF_ISSUER=https://${system_fqdn}
+Environment=URLS_SELF_PUBLIC=https://${system_fqdn}
+Environment=URLS_LOGIN=https://${system_fqdn}/login
+Environment=URLS_CONSENT=https://${system_fqdn}/consent
+Environment=URLS_LOGOUT=https://${system_fqdn}/logout
+Environment=BSS_IPXE_SERVER=${system_fqdn}
 EOF
 
     echo "Updating local site-specific OpenCHAMI ACME FQDN..."
-    mkdir -v -p  /etc/containers/systemd/acme-deploy.service.d
-    cat <<EOF | tee /etc/containers/systemd/acme-deploy.service.d/99-site-override.conf
-    # MANAGED BY '$0'
-    [Container]
-    Environment=SYSTEM_FQDN=${system_fqdn}
+    mkdir -v -p  /etc/containers/systemd/acme-deploy.container.d
+    cat <<EOF | tee /etc/containers/systemd/acme-deploy.container.d/99-site-override.conf
+# MANAGED BY '$0'
+[Container]
+Environment=SYSTEM_FQDN=${system_fqdn}
 EOF
 
 
-    mkdir -v -p  /etc/containers/systemd/acme-register.service.d
-    cat <<EOF | tee /etc/containers/systemd/acme-register.service.d/99-site-override.conf
-    # MANAGED BY '${0}'
-    [Container]
-    ContainerName=${system_fqdn}
-    HostName=${system_fqdn}
-    Environment=SYSTEM_FQDN=${system_fqdn}
+    mkdir -v -p  /etc/containers/systemd/acme-register.container.d
+    cat <<EOF | tee /etc/containers/systemd/acme-register.container.d/99-site-override.conf
+# MANAGED BY '${0}'
+[Container]
+ContainerName=${system_fqdn}
+HostName=${system_fqdn}
+Environment=SYSTEM_FQDN=${system_fqdn}
 EOF
 
     # Reload systemD after .container changes

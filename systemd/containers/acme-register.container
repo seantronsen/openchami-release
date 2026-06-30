@@ -23,13 +23,14 @@ EnvironmentFile=/etc/openchami/configs/openchami.env
 # /etc/containers/systemd/acme-register.service.d/99-site-override.conf
 Environment=SYSTEM_FQDN=%H
 
-Exec=--issue \
+Entrypoint=/bin/sh
+Exec=-ec '/entry.sh --issue \
   --ca-bundle /root_ca/root_ca.crt \
   --server https://step-ca:9000/acme/acme/directory \
   --home /acme.sh \
-  -d ${SYSTEM_FQDN} \
+  -d "$SYSTEM_FQDN" \
   --standalone \
-  --force
+  --force'
 
 [Service]
 Restart=on-failure

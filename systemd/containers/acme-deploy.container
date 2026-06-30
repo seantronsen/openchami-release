@@ -28,14 +28,15 @@ EnvironmentFile=/etc/openchami/configs/openchami.env
 Environment=SYSTEM_FQDN=%H
 
 # Command
-Exec=--deploy \
+Entrypoint=/bin/sh
+Exec=-ec '/entry.sh --deploy \
   --ca-bundle /root_ca/root_ca.crt \
   --server https://step-ca:9000/acme/acme/directory \
-  -d ${SYSTEM_FQDN} \
+  -d "$SYSTEM_FQDN" \
   --home /acme.sh \
   --standalone \
   --deploy-hook haproxy \
-  --force
+  --force'
 
 [Service]
 Restart=on-failure
