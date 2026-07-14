@@ -72,8 +72,16 @@ chmod 644 %{buildroot}/etc/openchami/configs/*
 /usr/bin/openchami-certificate-update
 
 %pre
-if [ -f /usr/share/containers/systemd/coresmd.container ]; then
-	echo 'WARNING: /usr/share/containers/systemd/coresmd.container as been replaced by /usr/share/containers/systemd/coresmd-coredhcp.container.'
+# NOTES:
+# 1. `coresmd` refers to the legacy implementation before the CoreDNS split.
+# 2. Releases now install Quadlets under the standard system-managed path,
+#    `/usr/share/containers/systemd`, instead of the admin-managed
+#    `/etc/containers/systemd`. This aligns with standard systemd override
+#    semantics and keeps local modifications separate from packaged files.
+# 3. This warning and these comments will remain until support for the legacy,
+#    non-fabrica services is dropped.
+if [ -f /etc/containers/systemd/coresmd.container ]; then
+	echo 'WARNING: /etc/containers/systemd/coresmd.container as been replaced by /usr/share/containers/systemd/coresmd-coredhcp.container.'
 	echo '         Migrate to coresmd-coredhcp to avoid any issues.'
 fi
 
