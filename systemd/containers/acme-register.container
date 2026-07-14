@@ -19,7 +19,7 @@ Network=openchami-cert-internal.network
 # Environment Variables
 EnvironmentFile=/etc/openchami/configs/openchami.env
 
-# **OPTIONAL:** OpenCHAMI site-specific overrides are managed in
+# OPTIONAL: OpenCHAMI site-specific overrides are managed in
 # /etc/containers/systemd/acme-register.service.d/99-site-override.conf
 Environment=SYSTEM_FQDN=%H
 
