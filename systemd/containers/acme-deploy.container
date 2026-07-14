@@ -23,7 +23,7 @@ Environment=DEPLOY_HAPROXY_PEM_PATH=/etc/haproxy/certs
 # Environment Variables
 EnvironmentFile=/etc/openchami/configs/openchami.env
 
-# **optional:** OpenCHAMI site-specific overrides are managed in
+# **OPTIONAL:** OpenCHAMI site-specific overrides are managed in
 # /etc/containers/systemd/acme-register.service.d/99-site-override.conf
 Environment=SYSTEM_FQDN=%H
 
