@@ -1,43 +1,11 @@
-#!/bin/bash
+#!/usr/bin/bash
 
-update_dns() {
-    local system_fqdn=$1
-    mkdir -v -p /etc/containers/systemd/containers.d
+FILE_OVERRIDE_GLOBAL="/etc/containers/systemd/containers.d/99-openchami-site-override.conf"
+FILE_OVERRIDE_ACME_DEPLOY="/etc/containers/systemd/acme-deploy.container.d/99-site-override.conf"
+FILE_OVERRIDE_ACME_REGISTER="/etc/containers/systemd/acme-register.container.d/99-site-override.conf"
 
-    echo "Updating local site-specific OpenCHAMI URL overrides..."
-    cat <<EOF > /etc/containers/systemd/containers.d/99-openchami-site-override.conf
-# MANAGED BY '${0}'
-[Container]
-Environment=URLS_SELF_ISSUER=https://${system_fqdn}
-Environment=URLS_SELF_PUBLIC=https://${system_fqdn}
-Environment=URLS_LOGIN=https://${system_fqdn}/login
-Environment=URLS_CONSENT=https://${system_fqdn}/consent
-Environment=URLS_LOGOUT=https://${system_fqdn}/logout
-Environment=BSS_IPXE_SERVER=${system_fqdn}
-EOF
-
-    echo "Updating local site-specific OpenCHAMI ACME FQDN..."
-    mkdir -v -p  /etc/containers/systemd/acme-deploy.container.d
-    cat <<EOF > /etc/containers/systemd/acme-deploy.container.d/99-site-override.conf
-# MANAGED BY '$0'
-[Container]
-Environment=SYSTEM_FQDN=${system_fqdn}
-EOF
-
-
-    mkdir -v -p  /etc/containers/systemd/acme-register.container.d
-    cat <<EOF > /etc/containers/systemd/acme-register.container.d/99-site-override.conf
-# MANAGED BY '${0}'
-[Container]
-ContainerName=${system_fqdn}
-HostName=${system_fqdn}
-Environment=SYSTEM_FQDN=${system_fqdn}
-EOF
-
-    # Reload systemD after .container changes
-    systemctl daemon-reload
-
-    echo "Changed FQDN to ${1}"
+notify_dns_change() {
+    echo "Changed FQDN to $1"
     echo 'Either restart all of the OpenCHAMI services:'
     echo
     echo '  sudo systemctl restart openchami.target'
@@ -48,6 +16,57 @@ EOF
     echo
 }
 
+update_dns() {
+    local system_fqdn="$1"
+    local workfile
+
+    workfile="$(mktemp)"
+    trap 'rm -f "$workfile"' RETURN
+
+    echo "Updating local site-specific OpenCHAMI URL overrides..."
+    cat <<EOF > "${workfile}"
+# MANAGED BY '$0'
+[Container]
+Environment=URLS_SELF_ISSUER=https://${system_fqdn}
+Environment=URLS_SELF_PUBLIC=https://${system_fqdn}
+Environment=URLS_LOGIN=https://${system_fqdn}/login
+Environment=URLS_CONSENT=https://${system_fqdn}/consent
+Environment=URLS_LOGOUT=https://${system_fqdn}/logout
+Environment=BSS_IPXE_SERVER=${system_fqdn}
+EOF
+    install -D -m 0644 "${workfile}" "${FILE_OVERRIDE_GLOBAL}"
+
+    echo "Updating local site-specific OpenCHAMI ACME FQDN..."
+    cat <<EOF > "${workfile}"
+# MANAGED BY '$0'
+[Container]
+Environment=SYSTEM_FQDN=${system_fqdn}
+EOF
+    install -D -m 0644 "${workfile}" "${FILE_OVERRIDE_ACME_DEPLOY}"
+
+    cat <<EOF > "${workfile}"
+# MANAGED BY '$0'
+[Container]
+ContainerName=${system_fqdn}
+HostName=${system_fqdn}
+Environment=SYSTEM_FQDN=${system_fqdn}
+EOF
+    install -D -m 0644 "${workfile}" "${FILE_OVERRIDE_ACME_REGISTER}"
+}
+
+unset_dns() {
+    echo "Removing local site-specific OpenCHAMI overrides..."
+
+    local file
+    for file in \
+        "$FILE_OVERRIDE_GLOBAL" \
+        "$FILE_OVERRIDE_ACME_DEPLOY" \
+        "$FILE_OVERRIDE_ACME_REGISTER"
+    do
+        [ -e "$file" ] && rm -v "$file"
+    done
+}
+
 help_page() {
     echo "OpenCHAMI Certificate Update"
     echo "Update OpenCHAMI Certificates"
@@ -55,19 +74,35 @@ help_page() {
     echo
     echo "EXAMPLES:"
     echo "  $0 update demo.openchami.cluster"
-
 }
+
 case "$1" in 
     update)
         if [[ -z "$2" ]]; then
             help_page
         else
             if [[ $EUID -ne 0 ]]; then
-                echo "This script must be run as root" 
+                echo "This script must be run as root"
                 exit 1
             else
                 update_dns "$2"
+
+                # Reload SystemD after .container override changes
+                systemctl daemon-reload
+                notify_dns_change "$2"
             fi
+        fi
+        ;;
+    unset)
+        if [[ $EUID -ne 0 ]]; then
+            echo "This script must be run as root"
+            exit 1
+        else
+            unset_dns
+
+            # Reload SystemD after .container override changes
+            systemctl daemon-reload
+	    notify_dns_change "system hostname ($(hostnamectl hostname))"
         fi
         ;;
     *)
