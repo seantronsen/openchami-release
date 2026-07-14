@@ -47,7 +47,6 @@ EOF
     cat <<EOF > "${workfile}"
 # MANAGED BY '$0'
 [Container]
-ContainerName=${system_fqdn}
 HostName=${system_fqdn}
 Environment=SYSTEM_FQDN=${system_fqdn}
 EOF

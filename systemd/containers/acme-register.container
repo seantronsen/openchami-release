@@ -5,7 +5,7 @@ After=acme-certs-volume.service openchami-cert-trust.service acme-certs-volume.s
 PartOf=openchami.target
 
 [Container]
-ContainerName=%H
+ContainerName=acme-register
 HostName=%H
 Image=docker.io/neilpang/acme.sh:3.1.1
 
