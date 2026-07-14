@@ -5,7 +5,7 @@ update_dns() {
     mkdir -v -p /etc/containers/systemd/containers.d
 
     echo "Updating local site-specific OpenCHAMI URL overrides..."
-    cat <<EOF | tee /etc/containers/systemd/containers.d/99-openchami-site-override.conf
+    cat <<EOF > /etc/containers/systemd/containers.d/99-openchami-site-override.conf
 # MANAGED BY '${0}'
 [Container]
 Environment=URLS_SELF_ISSUER=https://${system_fqdn}
@@ -18,7 +18,7 @@ EOF
 
     echo "Updating local site-specific OpenCHAMI ACME FQDN..."
     mkdir -v -p  /etc/containers/systemd/acme-deploy.container.d
-    cat <<EOF | tee /etc/containers/systemd/acme-deploy.container.d/99-site-override.conf
+    cat <<EOF > /etc/containers/systemd/acme-deploy.container.d/99-site-override.conf
 # MANAGED BY '$0'
 [Container]
 Environment=SYSTEM_FQDN=${system_fqdn}
@@ -26,7 +26,7 @@ EOF
 
 
     mkdir -v -p  /etc/containers/systemd/acme-register.container.d
-    cat <<EOF | tee /etc/containers/systemd/acme-register.container.d/99-site-override.conf
+    cat <<EOF > /etc/containers/systemd/acme-register.container.d/99-site-override.conf
 # MANAGED BY '${0}'
 [Container]
 ContainerName=${system_fqdn}
