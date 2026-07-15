@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 FILE_OVERRIDE_GLOBAL="/etc/containers/systemd/containers.d/99-openchami-site-override.conf"
-FILE_OVERRIDE_ACME_DEPLOY="/etc/containers/systemd/acme-deploy.container.d/99-site-override.conf"
+FILE_OVERRIDE_ACME_QUADLETS="/etc/containers/systemd/acme-.container.d/99-site-override.conf"
 FILE_OVERRIDE_ACME_REGISTER="/etc/containers/systemd/acme-register.container.d/99-site-override.conf"
 
 notify_dns_change() {
@@ -42,15 +42,12 @@ EOF
 [Service]
 Environment=SYSTEM_FQDN=${system_fqdn}
 EOF
-    install -D -m 0644 "${workfile}" "${FILE_OVERRIDE_ACME_DEPLOY}"
+    install -D -m 0644 "${workfile}" "${FILE_OVERRIDE_ACME_QUADLETS}"
 
     cat <<EOF > "${workfile}"
 # MANAGED BY '$0'
 [Container]
 HostName=${system_fqdn}
-
-[Service]
-Environment=SYSTEM_FQDN=${system_fqdn}
 EOF
     install -D -m 0644 "${workfile}" "${FILE_OVERRIDE_ACME_REGISTER}"
 }
@@ -61,7 +58,7 @@ unset_dns() {
     local file
     for file in \
         "$FILE_OVERRIDE_GLOBAL" \
-        "$FILE_OVERRIDE_ACME_DEPLOY" \
+        "$FILE_OVERRIDE_ACME_QUADLETS" \
         "$FILE_OVERRIDE_ACME_REGISTER"
     do
         [ -e "$file" ] && rm -v "$file"
@@ -77,7 +74,7 @@ help_page() {
     echo "  $0 update demo.openchami.cluster"
 }
 
-case "$1" in 
+case "$1" in
     update)
         if [[ -z "$2" ]]; then
             help_page
