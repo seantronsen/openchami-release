@@ -39,7 +39,7 @@ EOF
     echo "Updating local site-specific OpenCHAMI ACME FQDN..."
     cat <<EOF > "${workfile}"
 # MANAGED BY '$0'
-[Container]
+[Service]
 Environment=SYSTEM_FQDN=${system_fqdn}
 EOF
     install -D -m 0644 "${workfile}" "${FILE_OVERRIDE_ACME_DEPLOY}"
@@ -48,6 +48,8 @@ EOF
 # MANAGED BY '$0'
 [Container]
 HostName=${system_fqdn}
+
+[Service]
 Environment=SYSTEM_FQDN=${system_fqdn}
 EOF
     install -D -m 0644 "${workfile}" "${FILE_OVERRIDE_ACME_REGISTER}"

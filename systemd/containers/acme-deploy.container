@@ -17,22 +17,29 @@ Volume=haproxy-certs:/etc/haproxy/certs/:z
 # Networks for the Container to use
 Network=openchami-cert-internal.network
 
-# haproxy deploy hook requires the directory to be specified in an environment variable
-Environment=DEPLOY_HAPROXY_PEM_PATH=/etc/haproxy/certs
-
 # Environment Variables
 EnvironmentFile=/etc/openchami/configs/openchami.env
 
-# OPTIONAL: OpenCHAMI site-specific overrides are managed in
-# /etc/containers/systemd/acme-register.service.d/99-site-override.conf
-Environment=SYSTEM_FQDN=%H
+# haproxy deploy hook requires the directory to be specified in an environment variable
+Environment=DEPLOY_HAPROXY_PEM_PATH=/etc/haproxy/certs
+
+# NOTE: Do not modify this environment variable. It exists solely as a
+# placeholder to trigger systemd environment variable expansion.
+#
+# The [Container] Environment= directive only generates Podman's `-e` options;
+# it does not define a systemd environment variable. As a result, values
+# referenced by systemd (which may themselves contain systemd specifiers such
+# as %H) are not expanded as intended.
+#
+# If you need to override this value, override the corresponding Environment=
+# entry in the [Service] section instead.
+Environment=SYSTEM_FQDN=${SYSTEMD_FQDN}
 
 # Command
-Entrypoint=/bin/sh
-Exec=-ec '/entry.sh --deploy \
+Exec=--deploy \
   --ca-bundle /root_ca/root_ca.crt \
   --server https://step-ca:9000/acme/acme/directory \
-  -d "$${SYSTEM_FQDN}" \
+  -d ${SYSTEM_FQDN} \
   --home /acme.sh \
   --standalone \
   --deploy-hook haproxy \
@@ -42,3 +49,7 @@ Exec=-ec '/entry.sh --deploy \
 Restart=on-failure
 Type=oneshot
 RemainAfterExit=yes
+
+# OPTIONAL: OpenCHAMI site-specific overrides are managed in
+# /etc/containers/systemd/acme-deploy.service.d/99-site-override.conf
+Environment=SYSTEM_FQDN=%H

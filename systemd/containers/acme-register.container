@@ -19,16 +19,23 @@ Network=openchami-cert-internal.network
 # Environment Variables
 EnvironmentFile=/etc/openchami/configs/openchami.env
 
-# OPTIONAL: OpenCHAMI site-specific overrides are managed in
-# /etc/containers/systemd/acme-register.service.d/99-site-override.conf
-Environment=SYSTEM_FQDN=%H
+# NOTE: Do not modify this environment variable. It exists solely as a
+# placeholder to trigger systemd environment variable expansion.
+#
+# The [Container] Environment= directive only generates Podman's `-e` options;
+# it does not define a systemd environment variable. As a result, values
+# referenced by systemd (which may themselves contain systemd specifiers such
+# as %H) are not expanded as intended.
+#
+# If you need to override this value, override the corresponding Environment=
+# entry in the [Service] section instead.
+Environment=SYSTEM_FQDN=${SYSTEMD_FQDN}
 
-Entrypoint=/bin/sh
-Exec=-ec '/entry.sh --issue \
+Exec=--issue \
   --ca-bundle /root_ca/root_ca.crt \
   --server https://step-ca:9000/acme/acme/directory \
   --home /acme.sh \
-  -d "$${SYSTEM_FQDN}" \
+  -d ${SYSTEM_FQDN} \
   --standalone \
   --force'
 
@@ -36,3 +43,7 @@ Exec=-ec '/entry.sh --issue \
 Restart=on-failure
 Type=oneshot
 RemainAfterExit=yes
+
+# OPTIONAL: OpenCHAMI site-specific overrides are managed in
+# /etc/containers/systemd/acme-register.service.d/99-site-override.conf
+Environment=SYSTEM_FQDN=%H
