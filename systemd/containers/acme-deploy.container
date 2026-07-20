@@ -29,7 +29,11 @@ Environment=DEPLOY_HAPROXY_PEM_PATH=/etc/haproxy/certs
 # The [Container] Environment= directive only generates Podman's `-e` options;
 # it does not define a systemd environment variable. As a result, values
 # referenced by systemd (which may themselves contain systemd specifiers such
-# as %H) are not expanded as intended.
+# as %H) are not expanded as intended, and the variable must be defined twice:
+#
+#   1. Under [Service] so systemd can expand it while parsing the unit.
+#   2. Under [Container] so the container receives the final value as an
+#      environment variable.
 #
 # If you need to override this value, override the corresponding Environment=
 # entry in the [Service] section instead.
